@@ -1,0 +1,10 @@
+[package]
+name = "wpust"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+crossterm = "0.29.0"
+ratatui = { version = "0.29.0", features = ["all-widgets"] }
+color-eyre = "0.6"
+clap = { version = "4.5.51", features = ["derive"] }
