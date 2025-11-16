@@ -13,6 +13,9 @@ struct Args {
 enum Commands {
     Perma {
         site: String
+    },
+    Theme {
+        site: String
     }
 }
 
@@ -24,6 +27,10 @@ fn main() -> Result<()> {
         Commands::Perma {site} => {
             let site_after_check = acccheck(site);
             perma(site_after_check)?;
+        },
+        Commands::Theme {site} => {
+            let site_after_check = acccheck(site);
+            theme(site_after_check)?;
         }
     }
     
@@ -55,4 +62,17 @@ fn perma(site: String) -> Result<()> {
     open::that(url)?;
     Ok(())
 }
+
+
+fn theme(site: String) -> Result<()> {
+    if site.is_empty() {
+        return Err(color_eyre::eyre::eyre!("Site name may not be empty"));
+    }
+    let url = site + "/wp-admin/themes.php";
+
+    println!("{}", url);
+
+    open::that(url)?;
+    Ok(())
+} 
 
