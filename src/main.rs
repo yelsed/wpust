@@ -7,6 +7,8 @@ use hickory_resolver::{
     proto::rr::{Name, RecordType},
     Resolver,
 };
+use openssl::ssl::{SslConnector, SslMethod, SslVerifyMode};
+use std::net::TcpStream;
 // use crossterm::{ExecutableCommand, terminal};
 
 #[derive(Parser, Debug)]
@@ -34,6 +36,9 @@ enum Commands {
         site: String
     },
     Ip {
+        site: String
+    },
+    Ssl {
         site: String
     }
 }
@@ -64,6 +69,9 @@ fn main() -> Result<()> {
         }
         Commands::Ip {site} => {
             ip(site)?;
+        }
+        Commands::Ssl {site} => {
+            ssl(site)?;
         }
     }
 
@@ -279,4 +287,82 @@ fn extract_hostname(url_str: &str) -> Result<String> {
     parsed.host_str()
         .ok_or_else(|| color_eyre::eyre::eyre!("No hostname found"))
         .map(|s| s.to_string())
+}
+
+fn ssl(site: String) -> Result<()> {
+    let hostname = extract_hostname(&site)?;
+    
+    println!("SSL Certificate information for: {}\n", hostname);
+
+    let mut connector = SslConnector::builder(SslMethod::tls())?;
+    connector.set_verify(SslVerifyMode::NONE);
+    let connector = connector.build();
+
+    let stream = TcpStream::connect(format!("{}:443", hostname))
+        .map_err(|e| color_eyre::eyre::eyre!("Failed to connect to {}:443: {}", hostname, e))?;
+
+    let mut ssl_stream = connector.connect(&hostname, stream)
+        .map_err(|e| color_eyre::eyre::eyre!("SSL handshake failed: {}", e))?;
+
+    let certificate = ssl_stream.ssl()
+        .peer_certificate()
+        .ok_or_else(|| color_eyre::eyre::eyre!("No certificate found"))?;
+
+    let subject = certificate.subject_name();
+    let issuer = certificate.issuer_name();
+
+    println!("Subject:");
+    for entry in subject.entries() {
+        let object_name = entry.object().nid().short_name().unwrap_or("UNKNOWN");
+        let value = entry.data().as_utf8()
+            .map_err(|e| color_eyre::eyre::eyre!("Failed to decode subject entry: {}", e))?
+            .to_string();
+        println!("  {}: {}", object_name, value);
+    }
+
+    println!("\nIssuer:");
+    for entry in issuer.entries() {
+        let object_name = entry.object().nid().short_name().unwrap_or("UNKNOWN");
+        let value = entry.data().as_utf8()
+            .map_err(|e| color_eyre::eyre::eyre!("Failed to decode issuer entry: {}", e))?
+            .to_string();
+        println!("  {}: {}", object_name, value);
+    }
+
+    let not_before = certificate.not_before();
+    let not_after = certificate.not_after();
+    
+    println!("\nValidity:");
+    println!("  Not Before: {}", not_before);
+    println!("  Not After:  {}", not_after);
+
+    let now = openssl::asn1::Asn1Time::days_from_now(0)
+        .map_err(|e| color_eyre::eyre::eyre!("Failed to get current time: {}", e))?;
+    
+    let days_until_expiry = (not_after.diff(&now)?
+        .days as i64)
+        .max(0);
+    
+    if days_until_expiry == 0 {
+        println!("  ⚠️  Certificate has expired!");
+    } else if days_until_expiry <= 30 {
+        println!("  ⚠️  Certificate expires in {} days", days_until_expiry);
+    } else {
+        println!("  ✓ Certificate is valid for {} more days", days_until_expiry);
+    }
+
+    let serial_number = certificate.serial_number();
+    let serial_hex = serial_number.to_hex_str()
+        .map_err(|e| color_eyre::eyre::eyre!("Failed to convert serial number: {}", e))?;
+    
+    println!("\nSerial Number:");
+    println!("  {}", serial_hex);
+
+    let fingerprint_sha256 = certificate.digest(openssl::hash::MessageDigest::sha256())
+        .map_err(|e| color_eyre::eyre::eyre!("Failed to calculate fingerprint: {}", e))?;
+    
+    println!("\nFingerprint (SHA-256):");
+    println!("  {}", hex::encode(fingerprint_sha256.as_ref()));
+
+    Ok(())
 }

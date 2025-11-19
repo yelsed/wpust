@@ -1,7 +1,7 @@
 [package]
 name = "wpust"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 open = "5"
@@ -12,3 +12,5 @@ clap = { version = "4.5.51", features = ["derive"] }
 dns-lookup = "3.0.1"
 url = "2.5"
 hickory-resolver = "0.24"
+openssl = "0.10"
+hex = "0.4"
