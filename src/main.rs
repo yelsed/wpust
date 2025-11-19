@@ -1,5 +1,12 @@
 use clap::{Parser, Subcommand};
 use color_eyre::eyre::Result;
+use url::Url;
+use dns_lookup::lookup_addr;
+use hickory_resolver::{
+    config::{ResolverConfig, ResolverOpts},
+    proto::rr::{Name, RecordType},
+    Resolver,
+};
 // use crossterm::{ExecutableCommand, terminal};
 
 #[derive(Parser, Debug)]
@@ -14,13 +21,25 @@ enum Commands {
     Perma {
         site: String
     },
-    Theme {
+    Themes {
+        site: String
+    },
+    Plugins {
+        site: String
+    },
+    Siteinfo {
+        site: String
+    },
+    Dns {
+        site: String
+    },
+    Ip {
         site: String
     }
 }
 
 fn main() -> Result<()> {
-    color_eyre::install()?; 
+    color_eyre::install()?;
     let args = Args::parse();
 
     match args.command {
@@ -28,16 +47,30 @@ fn main() -> Result<()> {
             let site_after_check = acccheck(site);
             perma(site_after_check)?;
         },
-        Commands::Theme {site} => {
+        Commands::Themes {site} => {
             let site_after_check = acccheck(site);
-            theme(site_after_check)?;
+            themes(site_after_check)?;
+        },
+        Commands::Plugins {site} => {
+            let site_after_check = acccheck(site);
+            plugins(site_after_check)?;
+        }
+        Commands::Siteinfo {site} => {
+            let site_after_check = acccheck(site);
+            site_health(site_after_check)?;
+        }
+        Commands::Dns {site} => {
+            dns(site)?;
+        }
+        Commands::Ip {site} => {
+            ip(site)?;
         }
     }
-    
+
     Ok(())
 }
 
-fn acccheck(site: String) -> String { 
+fn acccheck(site: String) -> String {
     let acceptation_basic_auth = "https://REDACTED:REDACTED@";
     let acceptation_string = "acc.";
 
@@ -54,25 +87,196 @@ fn perma(site: String) -> Result<()> {
     if site.is_empty() {
         return Err(color_eyre::eyre::eyre!("Site name may not be empty"));
     }
-   
+
     let url = site + "/wp-admin/options-permalink.php";
 
-    println!("{}", url);
+    println!("opening: {}", url);
 
     open::that(url)?;
     Ok(())
 }
 
 
-fn theme(site: String) -> Result<()> {
+fn themes(site: String) -> Result<()> {
     if site.is_empty() {
         return Err(color_eyre::eyre::eyre!("Site name may not be empty"));
     }
     let url = site + "/wp-admin/themes.php";
 
-    println!("{}", url);
+    println!("opening: {}", url);
 
     open::that(url)?;
     Ok(())
-} 
+}
 
+fn plugins(site: String) -> Result<()> {
+    if site.is_empty() {
+        return Err(color_eyre::eyre::eyre!("Site name may not be empty"));
+    }
+    let url = site + "/wp-admin/plugins.php";
+
+    println!("opening: {}", url);
+
+    open::that(url)?;
+    Ok(())
+}
+
+
+fn site_health(site: String) -> Result<()> {
+    if site.is_empty() {
+        return Err(color_eyre::eyre::eyre!("Site name may not be empty"));
+    }
+
+    let url = site + "/wp-admin/site-health.php?tab=debug";
+
+    println!("opening: {}", url);
+
+    open::that(url)?;
+    Ok(())
+}
+
+fn dns(url: String) -> Result<()> {
+    use std::str::FromStr;
+
+    let hostname = extract_hostname(&url)?;
+    let name = Name::from_str(&hostname)
+        .map_err(|e| color_eyre::eyre::eyre!("Invalid hostname: {}", e))?;
+
+    println!("DNS lookup for: {}\n", hostname);
+
+    let resolver = Resolver::new(ResolverConfig::default(), ResolverOpts::default())
+        .map_err(|e| color_eyre::eyre::eyre!("Could not create resolver: {}", e))?;
+
+    let record_types = vec![
+        (RecordType::A, "A (IPv4)"),
+        (RecordType::AAAA, "AAAA (IPv6)"),
+        (RecordType::MX, "MX (Mail)"),
+        (RecordType::TXT, "TXT"),
+        (RecordType::NS, "NS (Name Servers)"),
+        (RecordType::CNAME, "CNAME"),
+        (RecordType::SOA, "SOA"),
+    ];
+
+    for (record_type, label) in record_types {
+        lookup_dns_records(&resolver, &name, record_type, label)?;
+    }
+
+    let root_domain = extract_root_domain(&hostname)?;
+    if root_domain != hostname {
+        println!("--- Records for root domain: {} ---\n", root_domain);
+        if let Ok(root_name) = Name::from_str(&root_domain) {
+            let root_record_types = vec![
+                (RecordType::MX, "MX (Mail)"),
+                (RecordType::TXT, "TXT"),
+                (RecordType::NS, "NS (Name Servers)"),
+                (RecordType::SOA, "SOA"),
+            ];
+
+            for (record_type, label) in root_record_types {
+                lookup_dns_records(&resolver, &root_name, record_type, label)?;
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn extract_root_domain(hostname: &str) -> Result<String> {
+    let parts: Vec<&str> = hostname.split('.').collect();
+    if parts.len() >= 2 {
+        Ok(format!("{}.{}", parts[parts.len() - 2], parts[parts.len() - 1]))
+    } else {
+        Ok(hostname.to_string())
+    }
+}
+
+fn ip(url: String) -> Result<()> {
+    use dns_lookup::lookup_host;
+
+    let hostname = extract_hostname(&url)?;
+
+    println!("IP lookup for: {}\n", hostname);
+
+    match lookup_host(&hostname) {
+        Ok(ips) => {
+            println!("IP addresses:");
+            for ip in ips {
+                println!("  - {}", ip);
+
+                if let Ok(host) = lookup_addr(&ip) {
+                    println!("    (reverse DNS: {})", host);
+                }
+            }
+        }
+        Err(e) => {
+            return Err(color_eyre::eyre::eyre!("IP lookup failed: {}", e));
+        }
+    }
+
+    Ok(())
+}
+
+fn lookup_dns_records(
+    resolver: &Resolver,
+    name: &Name,
+    record_type: RecordType,
+    label: &str,
+) -> Result<()> {
+    use hickory_resolver::proto::rr::RData;
+
+    let response = match resolver.lookup(name.clone(), record_type) {
+        Ok(response) => response,
+        Err(_) => {
+            return Ok(());
+        }
+    };
+
+    let records = response.record_iter();
+    let mut has_records = false;
+    for record in records {
+        if !has_records {
+            println!("{} records:", label);
+            has_records = true;
+        }
+        if let Some(rdata) = record.data() {
+                match rdata {
+                    RData::A(ipv4) => println!("  - {}", ipv4),
+                    RData::AAAA(ipv6) => println!("  - {}", ipv6),
+                    RData::MX(mx) => println!("  - {} (priority: {})", mx.exchange(), mx.preference()),
+                    RData::TXT(txt) => {
+                        let text: String = txt.iter()
+                            .filter_map(|bytes| std::str::from_utf8(bytes).ok())
+                            .collect();
+                        println!("  - {}", text);
+                    }
+                    RData::NS(ns) => println!("  - {}", ns),
+                    RData::CNAME(cname) => println!("  - {}", cname),
+                    RData::SOA(soa) => {
+                        println!("  - MNAME: {}", soa.mname());
+                        println!("    RNAME: {}", soa.rname());
+                        println!("    Serial: {}", soa.serial());
+                        println!("    Refresh: {}", soa.refresh());
+                        println!("    Retry: {}", soa.retry());
+                        println!("    Expire: {}", soa.expire());
+                        println!("    Minimum: {}", soa.minimum());
+                    }
+                    _ => println!("  - {:?}", rdata),
+                }
+        }
+    }
+
+    if has_records {
+        println!();
+    }
+
+    Ok(())
+}
+
+fn extract_hostname(url_str: &str) -> Result<String> {
+    let parsed = Url::parse(url_str)
+        .or_else(|_| Url::parse(&format!("https://{}", url_str)))?;
+
+    parsed.host_str()
+        .ok_or_else(|| color_eyre::eyre::eyre!("No hostname found"))
+        .map(|s| s.to_string())
+}
