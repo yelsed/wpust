@@ -30,7 +30,10 @@ pub enum Commands {
     Ssl {
         site: String
     },
-    Whois {
+    Response {
+        site: String
+    },
+    PageLoad {
         site: String
     }
 }

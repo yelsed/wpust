@@ -14,4 +14,5 @@ url = "2.5"
 hickory-resolver = "0.24"
 openssl = "0.10"
 hex = "0.4"
-whois-service = "0.1.1"
+reqwest = { version = "0.12", features = ["blocking"] }
+headless_chrome = "1.0"

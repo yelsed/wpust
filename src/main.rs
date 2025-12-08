@@ -7,7 +7,7 @@ use color_eyre::eyre::Result;
 use clap::Parser;
 use cli::{Args, Commands};
 use wordpress::{perma, themes, plugins, site_health};
-use network::{dns, ip, ssl, whois};
+use network::{dns, ip, ssl, response, page_load};
 
 fn main() -> Result<()> {
     color_eyre::install()?;
@@ -21,7 +21,8 @@ fn main() -> Result<()> {
         Commands::Dns { site } => dns(site)?,
         Commands::Ip { site } => ip(site)?,
         Commands::Ssl { site } => ssl(site)?,
-        Commands::Whois { site } => whois(site)?,
+        Commands::Response { site } => response(site)?,
+        Commands::PageLoad { site } => page_load(site)?,
     }
 
     Ok(())
