@@ -1,10 +1,11 @@
 mod cli;
-mod wordpress;
+mod goose;
 mod network;
 mod utils;
+mod wordpress;
 
 use color_eyre::eyre::Result;
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 use cli::{Args, Commands};
 use wordpress::{perma, themes, plugins, site_health};
 use network::{dns, ip, ssl, response, page_load};
@@ -23,6 +24,8 @@ fn main() -> Result<()> {
         Commands::Ssl { site } => ssl(site)?,
         Commands::Response { site } => response(site)?,
         Commands::PageLoad { site } => page_load(site)?,
+        Commands::Goose { site } => goose::goose(site)?,
+        Commands::About => Args::command().print_long_help().map_err(color_eyre::eyre::Report::from)?,
     }
 
     Ok(())
