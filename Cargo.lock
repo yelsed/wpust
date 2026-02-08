@@ -3162,6 +3162,7 @@ dependencies = [
  "headless_chrome",
  "hex",
  "hickory-resolver",
+ "image",
  "open",
  "openssl",
  "rascii_art",

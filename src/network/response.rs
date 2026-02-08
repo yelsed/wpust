@@ -16,7 +16,7 @@ pub fn response(site: String) -> Result<()> {
 
     let start_time_text = Instant::now();
 
-    let text_response = headers_response.text().map_err(|e| color_eyre::eyre::eyre!("Failed to get text: {}", e))?;
+    let _text_response = headers_response.text().map_err(|e| color_eyre::eyre::eyre!("Failed to get text: {}", e))?;
 
     let duration_text = start_time_text.elapsed();
 

@@ -87,13 +87,10 @@ pub enum Commands {
         site: String,
     },
     #[command(
-        about = "Goose command",
-        after_help = "Example:\n  wpust goose example.com"
+        about = "Render a goose (no site needed)",
+        after_help = "Example:\n  wpust goose"
     )]
-    Goose {
-        #[arg(help = "Hostname or URL")]
-        site: String,
-    },
+    Goose,
     #[command(
         name = "about",
         about = "Show this help screen",

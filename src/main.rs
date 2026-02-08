@@ -24,7 +24,7 @@ fn main() -> Result<()> {
         Commands::Ssl { site } => ssl(site)?,
         Commands::Response { site } => response(site)?,
         Commands::PageLoad { site } => page_load(site)?,
-        Commands::Goose { site } => goose::goose(site)?,
+        Commands::Goose => goose::goose()?,
         Commands::About => Args::command().print_long_help().map_err(color_eyre::eyre::Report::from)?,
     }
 
