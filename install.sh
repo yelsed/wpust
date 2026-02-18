@@ -8,14 +8,7 @@ INSTALL_DIR="$HOME/.local/bin"
 OS="$(uname -s)"
 case "$OS" in
     Linux)  OS_TARGET="x86_64-unknown-linux-gnu" ;;
-    Darwin)
-        ARCH="$(uname -m)"
-        case "$ARCH" in
-            x86_64)  OS_TARGET="x86_64-apple-darwin" ;;
-            arm64)   OS_TARGET="aarch64-apple-darwin" ;;
-            *)       echo "Unsupported architecture: $ARCH"; exit 1 ;;
-        esac
-        ;;
+    Darwin)  OS_TARGET="aarch64-apple-darwin" ;;
     *)  echo "Unsupported OS: $OS (try downloading manually from GitHub Releases)"; exit 1 ;;
 esac
 

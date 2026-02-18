@@ -17,7 +17,6 @@ Grab the latest binary for your platform from the [Releases page](https://github
 | Platform | Asset |
 |---|---|
 | Linux (x86_64) | `wpust-x86_64-unknown-linux-gnu.tar.gz` |
-| macOS (Intel) | `wpust-x86_64-apple-darwin.tar.gz` |
 | macOS (Apple Silicon) | `wpust-aarch64-apple-darwin.tar.gz` |
 | Windows | `wpust-x86_64-pc-windows-msvc.zip` |
 
