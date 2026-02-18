@@ -1,134 +1,72 @@
 # wpust
 
-WordPress administration CLI utility that opens WordPress admin pages in the browser and performs network diagnostics (DNS, IP, SSL, HTTP response timing) for sites.
+WordPress administration CLI utility. Open admin pages in the browser and run network diagnostics (DNS, IP, SSL, HTTP response timing) for any site.
 
-## Installation
+## Install
 
-### From GitHub Releases
+### Quick install (Linux / macOS)
 
-1. Go to the [Releases page](https://github.com/yelsed/wpust/releases) and download the binary for your platform:
-   - **macOS (Intel)**: `wpust-x86_64-apple-darwin.tar.gz`
-   - **macOS (Apple Silicon)**: `wpust-aarch64-apple-darwin.tar.gz`
-   - **Linux**: `wpust-x86_64-unknown-linux-gnu.tar.gz`
-   - **Windows**: `wpust-x86_64-pc-windows-msvc.zip`
+```sh
+curl -fsSL https://raw.githubusercontent.com/yelsed/wpust/master/install.sh | sh
+```
 
-2. Extract the archive:
-   - **macOS/Linux**: `tar -xzf wpust-*.tar.gz`
-   - **Windows**: Extract the ZIP file
+### Download from GitHub Releases
 
-3. Add the binary to your PATH:
+Grab the latest binary for your platform from the [Releases page](https://github.com/yelsed/wpust/releases):
 
-   **macOS/Linux:**
-   ```bash
-   # Option 1: Install to ~/.local/bin (recommended)
-   mkdir -p ~/.local/bin
-   mv wpust ~/.local/bin/
+| Platform | Asset |
+|---|---|
+| Linux (x86_64) | `wpust-x86_64-unknown-linux-gnu.tar.gz` |
+| macOS (Intel) | `wpust-x86_64-apple-darwin.tar.gz` |
+| macOS (Apple Silicon) | `wpust-aarch64-apple-darwin.tar.gz` |
+| Windows | `wpust-x86_64-pc-windows-msvc.zip` |
 
-   # Option 2: Install to /usr/local/bin (requires sudo)
-   sudo mv wpust /usr/local/bin/
-   ```
+Extract and move the binary somewhere on your PATH (e.g. `~/.local/bin`).
 
-   **Windows:**
-   - Move `wpust.exe` to a folder (e.g., `C:\Program Files\wpust\`)
-   - Add that folder to your system PATH:
-     1. Open System Properties → Environment Variables
-     2. Edit the `Path` variable
-     3. Add the folder containing `wpust.exe`
+### From source
 
-4. Verify installation:
-   ```bash
-   wpust about
-   ```
+```sh
+cargo install --git https://github.com/yelsed/wpust.git
+```
 
 ## Usage
 
-All commands accept a `site` argument (hostname or URL):
+All commands take a site argument (hostname or URL).
 
-### WordPress Admin Pages
+### WordPress admin pages
 
-```bash
-# Open permalink settings
-wpust perma example.com
-
-# Open themes page
-wpust themes example.com
-
-# Open plugins page
-wpust plugins example.com
-
-# Open site health page
-wpust siteinfo example.com
+```sh
+wpust perma example.com      # Permalink settings
+wpust themes example.com     # Themes page
+wpust plugins example.com    # Plugins page
+wpust siteinfo example.com   # Site health
 ```
 
-### Network Diagnostics
+### Network diagnostics
 
-```bash
-# DNS lookup (A, AAAA, MX, TXT, NS, CNAME, SOA)
-wpust dns example.com
-
-# IP address lookup with reverse DNS
-wpust ip example.com
-
-# SSL certificate details and expiry
-wpust ssl example.com
-
-# HTTP response timing
-wpust response example.com
-
-# Page load time in headless browser (WIP)
-wpust page-load example.com
+```sh
+wpust dns example.com        # DNS records (A, AAAA, MX, TXT, NS, CNAME, SOA)
+wpust ip example.com         # IP lookup with reverse DNS
+wpust ssl example.com        # SSL certificate details and expiry
+wpust response example.com   # HTTP response timing
 ```
 
-### Other Commands
+### Other
 
-```bash
-# Show help
-wpust about
-
-# Render a goose
-wpust goose
+```sh
+wpust about                  # About info
+wpust goose                  # Render a goose
 ```
 
-## Local Development
+## Development
 
-### Building from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/yelsed/wpust.git
-cd wpust
-
-# Build release binary
-cargo build --release
-
-# The binary will be at target/release/wpust
+```sh
+cargo build              # Debug build
+cargo build --release    # Release build
+cargo test               # Run tests
+cargo run -- dns example.com  # Run directly
 ```
-
-### Adding to PATH for Development
-
-**macOS/Linux:**
-```bash
-# Option 1: Create a symlink
-ln -s $(pwd)/target/release/wpust ~/.local/bin/wpust
-
-# Option 2: Copy the binary
-cp target/release/wpust ~/.local/bin/
-```
-
-**Windows:**
-- Add `target\release\` to your PATH, or copy `wpust.exe` to a folder already in your PATH
-
-### Running Tests
-
-```bash
-cargo test
-```
-
-## Requirements
-
-- **macOS/Linux**: No additional runtime dependencies
-- **Windows**: No additional runtime dependencies
 
 ## License
 
-[Add your license here]
+[MIT](LICENSE)

@@ -1,9 +1,8 @@
-pub fn prepare_wordpress_url(site: String) -> String {
-    let acceptation_basic_auth = "https://REDACTED:REDACTED@";
-    let acceptation_string = "acc.";
+use crate::config::Config;
 
-    if site.contains(acceptation_string) {
-        acceptation_basic_auth.to_owned() + &site.to_string()
+pub fn prepare_wordpress_url(site: String, config: &Config) -> String {
+    if let Some(auth) = config.find_basic_auth(&site) {
+        format!("https://{}:{}@{}", auth.username, auth.password, site)
     } else {
         format!("https://{}", site)
     }

@@ -1,4 +1,5 @@
 mod cli;
+mod config;
 mod goose;
 mod network;
 mod utils;

@@ -1,6 +1,7 @@
 mod utils;
 
 use color_eyre::eyre::Result;
+use crate::config::load_config;
 use crate::wordpress::utils::prepare_wordpress_url;
 
 fn open_wordpress_admin_page(site: String, admin_path: &str) -> Result<()> {
@@ -8,7 +9,8 @@ fn open_wordpress_admin_page(site: String, admin_path: &str) -> Result<()> {
         return Err(color_eyre::eyre::eyre!("Site name may not be empty"));
     }
 
-    let prepared_url = prepare_wordpress_url(site);
+    let config = load_config()?;
+    let prepared_url = prepare_wordpress_url(site, &config);
     let url = format!("{}/{}", prepared_url, admin_path);
     println!("opening: {}", url);
     open::that(url)?;

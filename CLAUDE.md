@@ -22,9 +22,10 @@ Modular CLI application organized into:
 src/
 ├── main.rs           # Entry point, command dispatch
 ├── cli.rs            # Clap argument/subcommand definitions
+├── config.rs         # Config file loading (~/.config/wpust/config.toml)
 ├── wordpress/        # WordPress admin page openers
 │   ├── mod.rs        # perma, themes, plugins, site_health functions
-│   └── utils.rs      # URL preparation (staging auth handling)
+│   └── utils.rs      # URL preparation (config-based auth handling)
 ├── network/          # Network diagnostic commands
 │   ├── dns.rs        # Full DNS lookup (A, AAAA, MX, TXT, NS, CNAME, SOA)
 │   ├── ip.rs         # IP lookup with reverse DNS
@@ -45,6 +46,7 @@ src/
 - **openssl** - SSL certificate inspection
 - **reqwest** (blocking) - HTTP response timing
 - **headless_chrome** - Page load measurement (not yet implemented)
+- **serde** + **toml** + **dirs** - Config file support
 
 ### CLI Commands
 
@@ -59,4 +61,4 @@ All commands take a `site` argument (hostname or URL):
 
 ### URL Handling
 
-`wordpress/utils.rs::prepare_wordpress_url()` handles acceptance/staging environments: sites containing "acc." get prefixed with basic auth credentials (`REDACTED:REDACTED@`).
+`wordpress/utils.rs::prepare_wordpress_url()` handles basic auth for staging/acceptance environments. Auth rules are configured in `~/.config/wpust/config.toml`. When a site URL matches a configured pattern, basic auth credentials are prepended to the URL.
