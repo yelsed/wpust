@@ -79,12 +79,16 @@ pub enum Commands {
         site: String,
     },
     #[command(
-        about = "Measure page load time in a headless browser (WIP)",
-        after_help = "Example:\n  wpust page-load example.com"
+        about = "Analyse page performance via Google PageSpeed Insights",
+        after_help = "Example:\n  wpust page-load example.com\n  wpust page-load example.com --strategy desktop"
     )]
     PageLoad {
         #[arg(help = "Hostname or URL")]
         site: String,
+        #[arg(long, default_value = "mobile", help = "Analysis strategy: mobile or desktop")]
+        strategy: String,
+        #[arg(long, env = "PAGESPEED_API_KEY", help = "Google PageSpeed Insights API key (or set PAGESPEED_API_KEY)")]
+        key: Option<String>,
     },
     #[command(
         about = "Render a goose (no site needed)",
@@ -96,6 +100,11 @@ pub enum Commands {
         after_help = "Example:\n  wpust config"
     )]
     Config,
+    #[command(
+        about = "Update wpust to the latest release",
+        after_help = "Example:\n  wpust update"
+    )]
+    Update,
     #[command(
         name = "about",
         about = "Show this help screen",

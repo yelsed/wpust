@@ -58,6 +58,23 @@ pub fn setup() -> Result<()> {
         Some(admin_path)
     };
 
+    // PageSpeed Insights API key
+    let default_key = config
+        .pagespeed_api_key
+        .as_deref()
+        .unwrap_or("")
+        .to_string();
+
+    let api_key = Text::new("Google PageSpeed Insights API key (leave blank to skip):")
+        .with_default(&default_key)
+        .prompt()?;
+
+    config.pagespeed_api_key = if api_key.is_empty() {
+        None
+    } else {
+        Some(api_key)
+    };
+
     // Show existing basic auth rules
     if !config.basic_auth.is_empty() {
         println!("\nExisting basic auth rules:");

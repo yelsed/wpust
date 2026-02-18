@@ -3,6 +3,7 @@ mod config;
 mod config_cmd;
 mod goose;
 mod network;
+mod update;
 mod utils;
 mod wordpress;
 
@@ -25,8 +26,9 @@ fn main() -> Result<()> {
         Commands::Ip { site } => ip(site)?,
         Commands::Ssl { site } => ssl(site)?,
         Commands::Response { site } => response(site)?,
-        Commands::PageLoad { site } => page_load(site)?,
+        Commands::PageLoad { site, strategy, key } => page_load(site, strategy, key)?,
         Commands::Config => config_cmd::setup()?,
+        Commands::Update => update::update()?,
         Commands::Goose => goose::goose()?,
         Commands::About => Args::command().print_long_help().map_err(color_eyre::eyre::Report::from)?,
     }

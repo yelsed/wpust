@@ -9,6 +9,8 @@ pub struct Config {
     #[serde(default)]
     pub wp_admin_path: Option<String>,
     #[serde(default)]
+    pub pagespeed_api_key: Option<String>,
+    #[serde(default)]
     pub basic_auth: Vec<BasicAuthRule>,
 }
 
