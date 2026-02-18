@@ -92,6 +92,11 @@ pub enum Commands {
     )]
     Goose,
     #[command(
+        about = "Interactive configuration setup",
+        after_help = "Example:\n  wpust config"
+    )]
+    Config,
+    #[command(
         name = "about",
         about = "Show this help screen",
         after_help = "Example:\n  wpust about"

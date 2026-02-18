@@ -1,5 +1,6 @@
 mod cli;
 mod config;
+mod config_cmd;
 mod goose;
 mod network;
 mod utils;
@@ -25,6 +26,7 @@ fn main() -> Result<()> {
         Commands::Ssl { site } => ssl(site)?,
         Commands::Response { site } => response(site)?,
         Commands::PageLoad { site } => page_load(site)?,
+        Commands::Config => config_cmd::setup()?,
         Commands::Goose => goose::goose()?,
         Commands::About => Args::command().print_long_help().map_err(color_eyre::eyre::Report::from)?,
     }

@@ -50,6 +50,20 @@ wpust ssl example.com        # SSL certificate details and expiry
 wpust response example.com   # HTTP response timing
 ```
 
+### Configuration
+
+```sh
+wpust config                 # Interactive setup
+```
+
+Run `wpust config` to launch an interactive wizard that lets you configure:
+
+- **Browser** — choose which browser opens admin pages (system default, Firefox, Chrome, or Chromium)
+- **Admin path** — set a custom `wp-admin` path if your site uses a non-standard location
+- **Basic auth rules** — add username/password credentials for staging or acceptance environments that require HTTP basic auth. When a site URL matches a configured pattern, credentials are automatically included.
+
+Settings are stored in `~/.config/wpust/config.toml`.
+
 ### Other
 
 ```sh
