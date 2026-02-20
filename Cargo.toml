@@ -1,10 +1,35 @@
 [package]
 name = "wpust"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
+description = "WordPress administration CLI utility — open admin pages in the browser and run network diagnostics"
+license = "MIT"
+repository = "https://github.com/yelsed/wpust"
+readme = "README.md"
+keywords = ["wordpress", "cli", "dns", "ssl", "network"]
+categories = ["command-line-utilities"]
 
 [dependencies]
+open = "5"
 crossterm = "0.29.0"
-ratatui = { version = "0.29.0", features = ["all-widgets"] }
 color-eyre = "0.6"
-clap = { version = "4.5.51", features = ["derive"] }
+clap = { version = "4.5.51", features = ["derive", "env"] }
+dns-lookup = "3.0.1"
+url = "2.5"
+hickory-resolver = "0.24"
+openssl = { version = "0.10", features = ["vendored"] }
+hex = "0.4"
+reqwest = { version = "0.12", features = ["blocking", "json"] }
+rascii_art = "0.4.5"
+image = "0.24"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+dirs = "6"
+inquire = "0.9"
+self_update = { version = "0.42", default-features = false, features = [
+    "rustls",
+    "archive-tar",
+    "archive-zip",
+    "compression-flate2",
+    "compression-zip-deflate",
+] }
