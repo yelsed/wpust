@@ -1,6 +1,6 @@
 [package]
 name = "wpust"
-version = "0.1.0"
+version = "0.2.4"
 edition = "2021"
 description = "WordPress administration CLI utility — open admin pages in the browser and run network diagnostics"
 license = "MIT"

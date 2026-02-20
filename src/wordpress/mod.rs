@@ -4,14 +4,24 @@ use color_eyre::eyre::{Result, eyre};
 use crate::config::load_config;
 use crate::wordpress::utils::prepare_wordpress_url;
 
-fn open_wordpress_admin_page(site: String, page: &str) -> Result<()> {
+fn open_wordpress_admin_page(
+    site: String,
+    page: &str,
+    username: Option<String>,
+    password: Option<String>,
+) -> Result<()> {
     if site.is_empty() {
         return Err(color_eyre::eyre::eyre!("Site name may not be empty"));
     }
 
     let config = load_config()?;
     let admin_path = config.wp_admin_path.as_deref().unwrap_or("wp-admin");
-    let prepared_url = prepare_wordpress_url(site, &config);
+    let prepared_url = prepare_wordpress_url(
+        site,
+        &config,
+        username.as_deref(),
+        password.as_deref(),
+    );
     let url = format!("{}/{}/{}", prepared_url, admin_path, page);
     println!("opening: {}", url);
 
@@ -32,18 +42,18 @@ fn open_wordpress_admin_page(site: String, page: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn perma(site: String) -> Result<()> {
-    open_wordpress_admin_page(site, "options-permalink.php")
+pub fn perma(site: String, username: Option<String>, password: Option<String>) -> Result<()> {
+    open_wordpress_admin_page(site, "options-permalink.php", username, password)
 }
 
-pub fn themes(site: String) -> Result<()> {
-    open_wordpress_admin_page(site, "themes.php")
+pub fn themes(site: String, username: Option<String>, password: Option<String>) -> Result<()> {
+    open_wordpress_admin_page(site, "themes.php", username, password)
 }
 
-pub fn plugins(site: String) -> Result<()> {
-    open_wordpress_admin_page(site, "plugins.php")
+pub fn plugins(site: String, username: Option<String>, password: Option<String>) -> Result<()> {
+    open_wordpress_admin_page(site, "plugins.php", username, password)
 }
 
-pub fn site_health(site: String) -> Result<()> {
-    open_wordpress_admin_page(site, "site-health.php?tab=debug")
+pub fn site_health(site: String, username: Option<String>, password: Option<String>) -> Result<()> {
+    open_wordpress_admin_page(site, "site-health.php?tab=debug", username, password)
 }

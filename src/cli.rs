@@ -1,4 +1,4 @@
-use clap::{Parser, Subcommand};
+use clap::{Args as ClapArgs, Parser, Subcommand};
 
 const ABOUT: &str = "WordPress admin CLI: open admin pages and run network diagnostics.";
 const LONG_ABOUT: &str = "wpust is a WordPress administration CLI utility that opens WordPress \
@@ -12,6 +12,16 @@ pub struct Args {
     pub command: Commands,
 }
 
+#[derive(ClapArgs, Debug)]
+pub struct WordPressArgs {
+    #[arg(help = "Hostname or URL")]
+    pub site: String,
+    #[arg(long, requires = "password", help = "Basic auth username (overrides config)")]
+    pub username: Option<String>,
+    #[arg(long, requires = "username", help = "Basic auth password (overrides config)")]
+    pub password: Option<String>,
+}
+
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     #[command(
@@ -19,32 +29,32 @@ pub enum Commands {
         after_help = "Example:\n  wpust perma example.com"
     )]
     Perma {
-        #[arg(help = "Hostname or URL")]
-        site: String,
+        #[command(flatten)]
+        wp: WordPressArgs,
     },
     #[command(
         about = "Open WordPress themes page in the browser",
         after_help = "Example:\n  wpust themes example.com"
     )]
     Themes {
-        #[arg(help = "Hostname or URL")]
-        site: String,
+        #[command(flatten)]
+        wp: WordPressArgs,
     },
     #[command(
         about = "Open WordPress plugins page in the browser",
         after_help = "Example:\n  wpust plugins example.com"
     )]
     Plugins {
-        #[arg(help = "Hostname or URL")]
-        site: String,
+        #[command(flatten)]
+        wp: WordPressArgs,
     },
     #[command(
         about = "Open WordPress site health (debug) page in the browser",
         after_help = "Example:\n  wpust siteinfo example.com"
     )]
     Siteinfo {
-        #[arg(help = "Hostname or URL")]
-        site: String,
+        #[command(flatten)]
+        wp: WordPressArgs,
     },
     #[command(
         about = "Look up DNS records (A, AAAA, MX, TXT, NS, CNAME, SOA)",
@@ -91,7 +101,7 @@ pub enum Commands {
         key: Option<String>,
     },
     #[command(
-        about = "Render a goose (no site needed)",
+        about = "Stop it you silly goose.",
         after_help = "Example:\n  wpust goose"
     )]
     Goose,
@@ -105,6 +115,16 @@ pub enum Commands {
         after_help = "Example:\n  wpust update"
     )]
     Update,
+    #[command(
+        about = "Print the current version",
+        after_help = "Example:\n  wpust version"
+    )]
+    Version,
+    #[command(
+        about = "Uninstall wpust from this system",
+        after_help = "Example:\n  wpust uninstall"
+    )]
+    Uninstall,
     #[command(
         name = "about",
         about = "Show this help screen",

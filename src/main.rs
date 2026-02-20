@@ -3,6 +3,7 @@ mod config;
 mod config_cmd;
 mod goose;
 mod network;
+mod uninstall;
 mod update;
 mod utils;
 mod wordpress;
@@ -18,10 +19,10 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     match args.command {
-        Commands::Perma { site } => perma(site)?,
-        Commands::Themes { site } => themes(site)?,
-        Commands::Plugins { site } => plugins(site)?,
-        Commands::Siteinfo { site } => site_health(site)?,
+        Commands::Perma { wp } => perma(wp.site, wp.username, wp.password)?,
+        Commands::Themes { wp } => themes(wp.site, wp.username, wp.password)?,
+        Commands::Plugins { wp } => plugins(wp.site, wp.username, wp.password)?,
+        Commands::Siteinfo { wp } => site_health(wp.site, wp.username, wp.password)?,
         Commands::Dns { site } => dns(site)?,
         Commands::Ip { site } => ip(site)?,
         Commands::Ssl { site } => ssl(site)?,
@@ -30,6 +31,8 @@ fn main() -> Result<()> {
         Commands::Config => config_cmd::setup()?,
         Commands::Update => update::update()?,
         Commands::Goose => goose::goose()?,
+        Commands::Version => println!("wpust {}", env!("CARGO_PKG_VERSION")),
+        Commands::Uninstall => uninstall::uninstall()?,
         Commands::About => Args::command().print_long_help().map_err(color_eyre::eyre::Report::from)?,
     }
 
